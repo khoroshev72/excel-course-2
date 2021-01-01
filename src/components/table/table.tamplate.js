@@ -25,12 +25,21 @@ function toColumn(col, index){
   </div> `
 }
 
-function toCell(_, col){
-  return `
-  <div class="cell" contenteditable="" data-col="${col}"></div>`
+
+function toCell(row){
+  return function(_, col){
+    return `
+    <div 
+      class="cell"
+      contenteditable=""
+      data-col="${col}"
+      data-type="cell"
+      data-id="${row}:${col}">
+    </div>`
+  }
 }
 
-function toChar(_, index){
+function toChar(index){
   return String.fromCharCode(CODES.A + index) 
 }
 
@@ -40,19 +49,20 @@ export function createTable(rowsCount = 25){
 
   const cols = new Array(colsCount)
         .fill('')
-        .map((_, index) => toChar(_, index))
-        .map((el, index) => toColumn(el, index))
+        .map((_, col) => toChar(col))
+        .map((el, col) => toColumn(el, col))
         .join('')
 
   rows.push(createRow(cols, null))
 
-  for (let i = 0; i < rowsCount; i++){
+  for (let row = 0; row < rowsCount; row++){
     const cells = new Array(colsCount)
           .fill('')
-          .map((_, index) => toCell(_, index))
+          // .map((_, col) => toCell(col, row))
+          .map(toCell(row))
           .join('')
 
-    rows.push(createRow(cells, i + 1))
+    rows.push(createRow(cells, row + 1))
   }
 
   return rows.join('')
